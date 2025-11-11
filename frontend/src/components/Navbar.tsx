@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <span className="text-xl font-bold text-gray-900 dark:text-white">NoteShare</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">NoteX</span>
           </div>
           
           <div className="hidden md:flex items-center space-x-6">

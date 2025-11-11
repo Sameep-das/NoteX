@@ -3,14 +3,14 @@ import { Users, Settings, LogOut, Crown, Circle } from 'lucide-react';
 
 const GroupSidebar: React.FC = () => {
   const activeMembers = [
-    { id: 1, name: 'Sameep Kumar', status: 'online', isOwner: true },
+    { id: 1, name: 'Sameep Das', status: 'online', isOwner: true },
     { id: 2, name: 'Rahul Sharma', status: 'online', isOwner: false },
-    { id: 3, name: 'Priya Singh', status: 'busy', isOwner: false },
+    { id: 3, name: 'Ayush', status: 'busy', isOwner: false },
   ];
 
   const offlineMembers = [
     { id: 4, name: 'Amit Patel', status: 'offline', isOwner: false },
-    { id: 5, name: 'Sarah Johnson', status: 'offline', isOwner: false },
+    { id: 5, name: 'Virat', status: 'offline', isOwner: false },
   ];
 
   return (
