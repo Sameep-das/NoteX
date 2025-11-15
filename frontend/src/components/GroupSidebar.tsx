@@ -1,5 +1,8 @@
 import React from 'react';
 import { Users, Settings, LogOut, Crown, Circle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { groupService } from '../services/groupService';
 
 const GroupSidebar: React.FC = () => {
   const activeMembers = [
@@ -12,6 +15,43 @@ const GroupSidebar: React.FC = () => {
     { id: 4, name: 'Amit Patel', status: 'offline', isOwner: false },
     { id: 5, name: 'Virat', status: 'offline', isOwner: false },
   ];
+
+  const { token } = useAuth();
+  const [groups, setGroups] = useState([]);
+  const [activeGroup, setActiveGroup] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      if (!token) return;
+      
+      try {
+        const response = await groupService.getUserGroups(token);
+        setGroups(response.data);
+        
+        if (response.data.length > 0) {
+          setActiveGroup(response.data[0]);
+          fetchMembers(response.data[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to fetch groups:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGroups();
+  }, [token]);
+
+  const fetchMembers = async (groupId: number) => {
+    try {
+      const response = await groupService.getGroupMembers(groupId, token!);
+      setMembers(response.data);
+    } catch (error) {
+      console.error('Failed to fetch members:', error);
+    }
+  };
 
   return (
     <div className="w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full transition-colors duration-200">

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Upload, Share2, Save, Bold, Italic, Underline, List, AlignLeft, AlignCenter, AlignRight, Type, Palette, Image, Link, MoreHorizontal } from 'lucide-react';
+import { useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { noteService } from '../services/noteService';
 
 const NoteEditor: React.FC = () => {
-  const [noteContent, setNoteContent] = useState('');
+  // const [noteContent, setNoteContent] = useState('');
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [activeTools, setActiveTools] = useState<string[]>([]);
 
@@ -17,6 +20,58 @@ const NoteEditor: React.FC = () => {
   const formatText = (command: string) => {
     document.execCommand(command, false);
   };
+
+  const [groupId, setGroupId] = useState<number | undefined>(undefined);
+  const [tagIds, setTagIds] = useState<number[]>([]);
+  const { token, user } = useAuth();
+  const [noteContent, setNoteContent] = useState('');
+  const [title, setTitle] = useState('Untitled Note');
+  const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  // const [visibility, setVisibility] = useState('PRIVATE');
+  const [visibility, setVisibility] = useState<"PRIVATE" | "PUBLIC" | "GROUP">("PRIVATE");
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const handleSave = async () => {
+    if (!token) return;
+
+    try {
+      const response = await noteService.createNote({
+        title,
+        content: noteContent,
+        noteType: 'TEXT',
+        visibility,
+        tagIds: selectedTags,
+      });
+
+      console.log('Note saved:', response);
+    } catch (error) {
+      console.error('Failed to save note:', error);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+  if (!token) return;
+
+  try {
+    // First create the note
+    const noteResponse = await noteService.createNote({
+      title,
+      content: noteContent,
+      noteType: 'IMAGE',
+      visibility,
+      groupId,
+      tagIds
+    });
+
+    // Then upload the file
+    await noteService.uploadNoteFile(noteResponse.id, file);
+
+    console.log("Image uploaded successfully");
+  } catch (error) {
+    console.error('Failed to upload file:', error);
+  }
+};
+
 
   return (
     <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-colors duration-200">
@@ -127,7 +182,7 @@ const NoteEditor: React.FC = () => {
             contentEditable
             className="w-full h-full p-6 outline-none text-gray-900 dark:text-white resize-none leading-relaxed"
             style={{ minHeight: '400px' }}
-            placeholder="Start writing your note..."
+            // placeholder="Start writing your note..."
             onInput={(e) => setNoteContent((e.target as HTMLDivElement).innerText)}
             suppressContentEditableWarning={true}
           />
